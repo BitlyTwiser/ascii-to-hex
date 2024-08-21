@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "type": "lldb",
+          "request": "launch",
+          "name": "Debug test",
+          "program": "${workspaceFolder}/zig-out/bin/test",
+          "args": [],
+          "cwd": "${workspaceFolder}",
+      },
+  {
+    "type": "lldb",
+    "request": "launch",
+    "name": "Debug",
+    "program": "${workspaceFolder}/zig-out/bin/ascii-to-hex",
+    "args": [],
+    "cwd": "${workspaceFolder}"
+  }
+  ]
+}

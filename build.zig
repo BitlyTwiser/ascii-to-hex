@@ -36,21 +36,31 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const exe_2 = b.addExecutable(.{
+        .name = "client",
+        .root_source_file = b.path("src/network/client.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
     b.installArtifact(exe);
+    b.installArtifact(exe_2);
 
     // This *creates* a Run step in the build graph, to be executed when another
     // step is evaluated that depends on it. The next line below will establish
     // such a dependency.
     const run_cmd = b.addRunArtifact(exe);
+    const run_cmd_2 = b.addRunArtifact(exe_2);
 
     // By making the run step depend on the install step, it will be run from the
     // installation directory rather than directly from within the cache directory.
     // This is not necessary, however, if the application depends on other installed
     // files, this ensures they will be present and in the expected location.
     run_cmd.step.dependOn(b.getInstallStep());
+    run_cmd_2.step.dependOn(b.getInstallStep());
 
     // This allows the user to pass arguments to the application in the build
     // command itself, like this: `zig build run -- arg1 arg2 etc`

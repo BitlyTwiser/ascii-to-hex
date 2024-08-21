@@ -7,7 +7,6 @@ const parser = @import("../parser/parser.zig");
 const server_address = net.Address.initIp4(.{ 127, 0, 0, 1 }, 9001);
 
 pub fn start(allocator: std.mem.Allocator) !void {
-    // const loopback = try net.Ip4Address.parse("127.0.0.1", 0);
     const localhost = net.Address{ .in = server_address.in };
     var server = try localhost.listen(.{
         .reuse_port = true,
@@ -21,9 +20,14 @@ pub fn start(allocator: std.mem.Allocator) !void {
         var client = try server.accept();
         defer client.stream.close();
 
-        const message = try client.stream.reader().readAllAlloc(allocator, 1024);
-        defer allocator.free(message);
+        print("client connected from IP {}\n", .{client.address.in});
 
+        var buf: [1024]u8 = undefined;
+        const message = try client.stream.reader().readUntilDelimiter(&buf, 0xFF);
+        // const message = try client.stream.reader().readAllAlloc(allocator, 1024);
+        // defer allocator.free(message);
+
+        print("{s}\n", .{message});
         const hex = try parser.toHex(allocator, message);
 
         _ = try client.stream.writer().write(hex);
