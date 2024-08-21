@@ -24,8 +24,6 @@ pub fn start(allocator: std.mem.Allocator) !void {
 
         var buf: [1024]u8 = undefined;
         const message = try client.stream.reader().readUntilDelimiter(&buf, 0xFF);
-        // const message = try client.stream.reader().readAllAlloc(allocator, 1024);
-        // defer allocator.free(message);
 
         print("{s}\n", .{message});
         const hex = try parser.toHex(allocator, message);
