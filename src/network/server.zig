@@ -17,17 +17,32 @@ pub fn start(allocator: std.mem.Allocator) !void {
     print("Listening on {}, access this port to write to the program\n", .{addr.getPort()});
 
     while (true) {
-        var client = try server.accept();
-        defer client.stream.close();
+        const client = try server.accept();
+        // defer client.stream.close();
 
         print("client connected from IP {}\n", .{client.address.in});
 
-        var buf: [1024]u8 = undefined;
-        const message = try client.stream.reader().readUntilDelimiter(&buf, 0xFF);
+        const spawn = try std.Thread.spawn(.{}, thread, .{ allocator, client });
+        spawn.detach();
 
-        print("{s}\n", .{message});
-        const hex = try parser.toHex(allocator, message);
+        // var buf: [1024]u8 = undefined;
+        // const message = try client.stream.reader().readUntilDelimiter(&buf, 0xFF);
 
-        _ = try client.stream.writer().write(hex);
+        // print("{s}\n", .{message});
+        // const hex = try parser.toHex(allocator, message);
+
+        // _ = try client.stream.writer().write(hex);
     }
+}
+
+fn thread(allocator: std.mem.Allocator, client: std.net.Server.Connection) !void {
+    defer client.stream.close();
+
+    var buf: [1024]u8 = undefined;
+    const message = try client.stream.reader().readUntilDelimiter(&buf, 0xFF);
+
+    print("{s}\n", .{message});
+    const hex = try parser.toHex(allocator, message);
+
+    _ = try client.stream.writer().write(hex);
 }
